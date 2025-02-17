@@ -1,4 +1,3 @@
-
 import pandas as pd
 from prophet import Prophet
 
@@ -27,14 +26,14 @@ test_data = test_data.rename(columns={'Timestamp': 'ds'})
 # Generate predictions for the test period
 forecast = model.predict(test_data)
 
-# Extract predictions
-pred = forecast[['ds', 'yhat']]
+# Extract numerical predictions (ensure it's a 1D array)
+pred = forecast['yhat'].to_numpy()
 
 # Save predictions to CSV
-pred.to_csv("taxi_trips_forecast.csv", index=False)
+pd.DataFrame(pred, columns=['yhat']).to_csv("taxi_trips_forecast.csv", index=False)
 
 # Display first few predictions
-print(pred.head())
+print(pred[:5])
 
 # Plot forecast
 fig = model.plot(forecast)
