@@ -9,27 +9,36 @@ import plotly
 import pandas as pd
 from prophet import Prophet
 
-# Load data
-data = pd.read_csv("assignment_data_train.csv")
+# Load training data
+train_data = pd.read_csv("assignment_data_train.csv")
 
 # Convert 'Timestamp' column to datetime format
-data['Timestamp'] = pd.to_datetime(data['Timestamp'])
+train_data['Timestamp'] = pd.to_datetime(train_data['Timestamp'])
 
 # Rename columns for Prophet compatibility
-data = data.rename(columns={'Timestamp': 'ds', 'trips': 'y'})
+train_data = train_data.rename(columns={'Timestamp': 'ds', 'trips': 'y'})
 
 # Initialize and fit the model
 model = Prophet()
-modelFit = model.fit(data)
+modelFit = model.fit(train_data)
 
-# Create a future dataframe for 744 hours (January of the next year)
-future = model.make_future_dataframe(periods=744, freq='H')
+# Load test data
+test_data = pd.read_csv("assignment_data_test.csv")
 
-# Generate predictions
-forecast = model.predict(future)
+# Convert 'Timestamp' column to datetime format
+test_data['Timestamp'] = pd.to_datetime(test_data['Timestamp'])
 
-# Extract predictions for the test period
-pred = forecast[['ds', 'yhat']].tail(744)
+# Rename columns for Prophet
+test_data = test_data.rename(columns={'Timestamp': 'ds'})
+
+# Generate predictions for the test period
+forecast = model.predict(test_data)
+
+# Extract predictions
+pred = forecast[['ds', 'yhat']]
+
+# Save predictions to CSV
+pred.to_csv("taxi_trips_forecast.csv", index=False)
 
 # Display first few predictions
 print(pred.head())
@@ -38,4 +47,3 @@ print(pred.head())
 fig = model.plot(forecast)
 fig.show()
 
-print("hello")
