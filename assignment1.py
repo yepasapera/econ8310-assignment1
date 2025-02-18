@@ -1,40 +1,35 @@
-
 import pandas as pd
 from prophet import Prophet
 
-# Load training data
+# training data
 train_data = pd.read_csv("assignment_data_train.csv")
-
-# Convert 'Timestamp' column to datetime format
+#'Timestamp' to datetime for training data
 train_data['Timestamp'] = pd.to_datetime(train_data['Timestamp'])
-
-# Rename columns for Prophet compatibility
+#ds and y recomendation
 train_data = train_data.rename(columns={'Timestamp': 'ds', 'trips': 'y'})
 
-# Initialize and fit the model
+# fit the model
 model = Prophet()
 modelFit = model.fit(train_data)
 
-# Load test data
+# test data
 test_data = pd.read_csv("assignment_data_test.csv")
-
-# Convert 'Timestamp' column to datetime format
+# 'Timestamp' to datetime test
 test_data['Timestamp'] = pd.to_datetime(test_data['Timestamp'])
-
-# Rename columns for Prophet
+# comparing
 test_data = test_data.rename(columns={'Timestamp': 'ds'})
 
-# Generate predictions for the test period
+#Create prediction not for 744 but all of test data
 forecast = model.predict(test_data)
 
-# Extract predictions
-pred = forecast[['ds', 'yhat']]
+# numerical preditctions
+pred = forecast['yhat'].to_numpy()
 
-# Save predictions to CSV
-pred.to_csv("taxi_trips_forecast.csv", index=False)
+# save predictions
+pd.DataFrame(pred, columns=['yhat']).to_csv("taxi_trips_forecast.csv", index=False)
 
-# Display first few predictions
-print(pred.head())
+# show 5 predictions
+print(pred[:5])
 
 # Plot forecast
 fig = model.plot(forecast)
